@@ -1,4 +1,4 @@
-![Logo de Quo.js](../../assets/logo.svg)
+![Logo de Quo.js](https://github.com/quojs/quojs/blob/main/assets/logo.svg)
 
 # Quo.js El estado de las cosas, re-escrito.
 
