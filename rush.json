@@ -3,5 +3,12 @@
   "rushVersion": "5.155.1",
   "pnpmVersion": "8.15.4",
   "projectFolderMaxDepth": 3,
-  "projects": []
+  "projects": [
+    {
+      "packageName": "@quojs/repo-tools",
+      "projectFolder": "tools/repo-tools",
+      "reviewCategory": "tools",
+      "shouldPublish": false
+    }
+  ]
 }
