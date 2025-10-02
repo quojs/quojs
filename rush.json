@@ -3,11 +3,34 @@
   "rushVersion": "5.155.1",
   "pnpmVersion": "8.15.4",
   "projectFolderMaxDepth": 3,
+  "repository": {
+    "url": "https://github.com/quojs/quojs.git"
+  },
   "projects": [
     {
       "packageName": "@quojs/repo-tools",
       "projectFolder": "tools/repo-tools",
       "reviewCategory": "tools",
+      "shouldPublish": false
+    },
+    {
+      "packageName": "@quojs/core",
+      "projectFolder": "packages/core",
+      "reviewCategory": "packages",
+      "versionPolicyName": "quojs-core",
+      "shouldPublish": true
+    },
+    {
+      "packageName": "@quojs/react",
+      "projectFolder": "packages/react",
+      "reviewCategory": "packages",
+      "versionPolicyName": "quojs-react",
+      "shouldPublish": true
+    },
+    {
+      "packageName": "quojs-in-react",
+      "projectFolder": "examples/v0/quojs-in-react",
+      "reviewCategory": "examples",
       "shouldPublish": false
     }
   ]

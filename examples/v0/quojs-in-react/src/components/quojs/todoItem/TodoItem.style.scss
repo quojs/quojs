@@ -1,0 +1,78 @@
+.todo-card {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    input {
+        padding: 0.2rem 0.4rem;
+        margin-left: 0.5rem;
+
+        border: 1px solid #595959;
+        border-radius: 0.4rem;
+    }
+
+    input:active,
+    input:focus-visible {
+        outline: 1px solid #595959;
+    }
+
+    div {
+
+        span {
+
+            svg {
+                margin-right: 0.25rem;
+                width: 1rem;
+                height: auto;
+            }
+        }
+    }
+}
+
+.todo-card p {
+    font-size: 1.3rem;
+}
+
+.pending {
+    color: #595959;
+
+    span > svg {
+        fill: #595959;
+    }
+}
+
+.complete {
+    color: #5b8c00;
+    text-decoration: line-through;
+
+    span > svg {
+        fill: #5b8c00;
+    }
+}
+
+.edit {
+    color: #006b8c;
+    text-decoration: line-through;
+
+    span > svg {
+        fill: #006b8c;
+    }
+}
+
+.canceled,
+.delete {
+    color: #ff4d4f;
+
+    span > svg {
+        fill: #ff4d4f;
+    }
+}
+
+.cancel {
+    color: #991f21;
+
+    span > svg {
+        fill: #991f21;
+    }
+}
