@@ -1,4 +1,4 @@
-![Quo.js logo](../../assets/logo.svg)
+![Quo.js logo](https://github.com/quojs/quojs/blob/main/assets/logo.svg)
 
 # Quo.js The state of things, rewritten.
 
