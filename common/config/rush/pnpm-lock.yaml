@@ -14,11 +14,11 @@ importers:
         specifier: ^5.0.0
         version: 5.6.1(react-dom@19.2.0)(react@19.2.0)
       '@quojs/core':
-        specifier: ^0.0.1
-        version: 0.0.1
+        specifier: ^0.1.0
+        version: 0.1.0
       '@quojs/react':
-        specifier: ^0.0.1
-        version: 0.0.1(@quojs/core@0.0.1)(react-dom@19.2.0)(react@19.2.0)
+        specifier: ^0.1.0
+        version: 0.1.0(@quojs/core@0.1.0)(react-dom@19.2.0)(react@19.2.0)
       '@reduxjs/toolkit':
         specifier: 2.9.0
         version: 2.9.0(react-redux@9.2.0)(react@19.2.0)
@@ -146,7 +146,7 @@ importers:
         specifier: ^9.30.1
         version: 9.36.0
       '@quojs/core':
-        specifier: workspace:*
+        specifier: workspace:^0.1.0
         version: link:../core
       '@quojs/repo-tools':
         specifier: workspace:*
@@ -1459,22 +1459,22 @@ packages:
     resolution: {integrity: sha512-wwQAWhWSuHaag8c4q/KN/vCoeOJYshAIvMQwD4GpSb3OiZklFfvAgmj0VCBBImRpuF/aFgIRzllXlVX93Jevww==}
     dev: true
 
-  /@quojs/core@0.0.1:
-    resolution: {integrity: sha512-AOx9BqjQ3NaG97VBJuS9uJac3kuWd6iy6jKLnE3X5/atwOuW5Qb2QSKMtzBlt62o1jze1Iv1cF6X2TRD6AtsBA==}
+  /@quojs/core@0.1.0:
+    resolution: {integrity: sha512-yKY5Q7c+ST009+qTldfBEdL3Ys11EXh8RiWfONS3SsJrWGtGYKIxGxzd7M1VdnexJ1jGY0eB9YSipiYi/phAVA==}
     engines: {node: '>=18.18'}
     dependencies:
       tslib: 2.8.1
     dev: false
 
-  /@quojs/react@0.0.1(@quojs/core@0.0.1)(react-dom@19.2.0)(react@19.2.0):
-    resolution: {integrity: sha512-ZMz7MqwF2JikAEMgqprx4kOdgAHFlgT0lsCawEGY7U6l3phzcIjHLISfbWIVzj8DYkanfPen43sAfxVi4yLA6A==}
+  /@quojs/react@0.1.0(@quojs/core@0.1.0)(react-dom@19.2.0)(react@19.2.0):
+    resolution: {integrity: sha512-CvgqbgvYOEuNKizLUI9/lRfQ+Wgu2PSytxBHyPMT4JdAjcvP6Z+0vIsBh7VkvGlrjD4ke0QfoGUWbhSIYbC2CQ==}
     engines: {node: '>=18.18'}
     peerDependencies:
-      '@quojs/core': ^0.0.1
+      '@quojs/core': ^0.1.0
       react: ^18 || ^19
       react-dom: ^18 || ^19
     dependencies:
-      '@quojs/core': 0.0.1
+      '@quojs/core': 0.1.0
       react: 19.2.0
       react-dom: 19.2.0(react@19.2.0)
       tslib: 2.8.1
@@ -2581,7 +2581,7 @@ packages:
       std-env: 3.9.0
       test-exclude: 7.0.1
       tinyrainbow: 2.0.0
-      vitest: 3.2.4(@types/node@24.6.2)(@vitest/ui@3.2.4)
+      vitest: 3.2.4(jsdom@24.1.3)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -2610,7 +2610,7 @@ packages:
       '@vitest/spy': 3.2.4
       estree-walker: 3.0.3
       magic-string: 0.30.19
-      vite: 7.1.7(@types/node@24.6.2)
+      vite: 7.1.7(@types/node@20.19.19)(sass-embedded@1.93.2)
     dev: true
 
   /@vitest/pretty-format@3.2.4:
