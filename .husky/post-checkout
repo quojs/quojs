@@ -1,0 +1,2 @@
+# Git passes: <old> <new> <isBranchCheckout>
+node tools/repo-tools/hooks/post-checkout.mjs "$1" "$2" "$3"

@@ -1,0 +1,81 @@
+internal/**
+
+# OS & Editors
+.DS_Store
+Thumbs.db
+*.sw?
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Dependencies
+**/node_modules/
+
+# Build artifacts
+**/dist/
+**/dist-ssr/
+**/build/
+**/out/
+**/.rush/
+# Local tarballs from dry-run publishes
+dist-tarballs/
+
+# Test artifacts
+**/coverage/
+coverage-final.json
+.nyc_output/
+
+# TypeScript
+**/*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Vite / Vitest caches
+# (Vite also caches in node_modules/.vite which is already ignored)
+.vite/
+**/.vite/
+.vitest/
+**/.vitest/
+
+# Env files (keep examples)
+.env
+.env.*
+!.env.example
+!**/.env.example
+
+# Rush (monorepo)
+# Per-project temp/state
+**/rush-logs/**
+rush-logs
+
+# Repo-level temp & recycler
+common/temp/**
+rush-recycler/**
+
+# DO NOT ignore: common/config/rush/** (committed)
+!common/config/rush/pnpm-lock.yaml
+!common/config/rush/
+!common/config/rush/**
+
+# Lockfiles (Rush keeps pnpm lockfile under common/config/rush/)
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Keep the Rush-managed lockfile
+!common/config/rush/pnpm-lock.yaml
+
+# Misc
+*.local
+
+# Verdaccio
+ops/verdaccio/storage/.verdaccio-db.json
+ops/verdaccio/storage/**
