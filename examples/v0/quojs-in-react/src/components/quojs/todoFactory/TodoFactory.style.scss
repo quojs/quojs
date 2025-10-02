@@ -1,0 +1,17 @@
+div.todo-factory {
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    input {
+        max-width: 7.2rem;
+        margin-left: 0.5rem;
+    }
+
+    select {
+        max-width: 7.2rem;
+        margin-left: 0.5rem;
+    }
+}
