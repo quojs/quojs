@@ -68,3 +68,8 @@ tsconfig.tsbuildinfo
 .rush/
 .rush/temp/
 rush-logs
+
+# ------------------------------
+# TypeDoc's output
+# ------------------------------
+doxs/

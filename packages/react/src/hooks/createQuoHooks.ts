@@ -1,3 +1,4 @@
+// file: quojs/packages/react/src/hooks/createQuoHooks.ts
 import * as React from "react";
 import { useContext, useMemo, useRef, useSyncExternalStore } from "react";
 
@@ -10,27 +11,63 @@ import type {
   Dotted,
   ConnectDeep,
 } from "@quojs/core";
+import { PathValue } from "./hooks";
 
-export type PathValue<T, P extends string> =
-  P extends `${infer K}.${infer Rest}`
-    ? K extends `${number}`
-      ? T extends readonly (infer U)[]
-        ? PathValue<U, Rest>
-        : never
-      : K extends keyof T
-        ? PathValue<T[K], Rest>
-        : never
-    : P extends `${number}`
-      ? T extends readonly (infer U)[]
-        ? U
-        : never
-      : P extends keyof T
-        ? T[P]
-        : never;
+/**
+ * Overload shape for the `useSliceProp` hook returned by {@link createQuoHooks}.
+ * Exported so TypeDoc can include and cross-link it from factory docs.
+ *
+ * @typeParam R - Slice name union.
+ * @typeParam S - State record keyed by `R`.
+ * @public
+ */
+export type UseSliceProp<R extends string, S extends Record<R, any>> = {
+  // Exact path, no map -> PathValue<S[R1], P>
+  <R1 extends R, P extends Dotted<S[R1]>>(
+    spec: { reducer: R1; property: P },
+  ): PathValue<S[R1], P>;
 
+  // Exact path + map -> T
+  <R1 extends R, P extends Dotted<S[R1]>, T>(
+    spec: { reducer: R1; property: P },
+    map: (value: PathValue<S[R1], P>) => T,
+    isEqual?: (a: T, b: T) => boolean,
+  ): T;
+
+  // Glob path + map -> T (map receives the whole slice)
+  <R1 extends R, P extends WithGlob<Dotted<S[R1]>>, T>(
+    spec: { reducer: R1; property: P },
+    map: (value: unknown) => T,
+    isEqual?: (a: T, b: T) => boolean,
+  ): T;
+};
+
+/**
+ * Overload shape for the `useSliceProps` hook returned by {@link createQuoHooks}.
+ * Exported so TypeDoc can include and cross-link it from factory docs.
+ *
+ * @typeParam R - Slice name union.
+ * @typeParam S - State record keyed by `R`.
+ * @public
+ */
+export type UseSliceProps<R extends string, S extends Record<R, any>> = {
+  <R1 extends R, T>(
+    specs: Array<{
+      reducer: R1;
+      property: WithGlob<Dotted<S[R1]>> | readonly WithGlob<Dotted<S[R1]>>[];
+    }>,
+    selector: (state: DeepReadonly<S>) => T,
+    isEqual?: (a: T, b: T) => boolean
+  ): T;
+};
+
+/** @internal */
 const hasWildcard = (p: string) => p.includes("*");
+/** @internal */
 const normalizePath = (p: string) => p.replace(/^\./, "");
+/** @internal */
 const splitPath = (p: string) => normalizePath(p).split(".").filter(Boolean);
+/** @internal */
 const getAtPath = (obj: unknown, path: string): unknown => {
   if (!path) return obj;
 
@@ -45,6 +82,17 @@ const getAtPath = (obj: unknown, path: string): unknown => {
   return cur;
 };
 
+/**
+ * Shallow equality for plain records using `Object.is` per-key.
+ *
+ * @example
+ * ```ts
+ * shallowEqual({ a: 1, b: 2 }, { a: 1, b: 2 }) // true
+ * shallowEqual({ a: 1 }, { a: 1, b: 2 })       // false (different keys)
+ * ```
+ *
+ * @public
+ */
 export function shallowEqual<T extends Record<string, unknown>>(a: T, b: T) {
   if (Object.is(a, b)) return true;
   if (!a || !b) return false;
@@ -60,13 +108,58 @@ export function shallowEqual<T extends Record<string, unknown>>(a: T, b: T) {
 }
 
 /**
- * Factory that binds all hooks to a typed Store Context.
- * Consumers call this once per app to get DX-perfect hooks. */
+ * Factory that binds **typed React hooks** to a specific {@link StoreInstance} via context.
+ *
+ * Call this **once per app** (or per store instance type) and export the returned hooks.
+ *
+ * @typeParam R  - Slice name union (string literal union).
+ * @typeParam S  - State record keyed by `R`.
+ * @typeParam AM - Action map for `(channel → event → payload)`.
+ *
+ * @param StoreContext - A React context that carries `StoreInstance<R,S,AM> | null`.
+ *
+ * @returns An object with pre-bound hooks:
+ * - `useStore()` – access the store from context (throws if missing).
+ * - `useDispatch()` – stable dispatch reference.
+ * - `useSelector(selector, isEqual?)` – external-store selector with memoized equality.
+ * - `useSliceProp(spec, map?, isEqual?)` – subscribe to a **single** dotted path (or glob).
+ * - `useSliceProps(specs, selector, isEqual?)` – subscribe to **many** paths/globs and compute a derived value.
+ * - `shallowEqual` – helper equality for objects.
+ *
+ * @example
+ * ```tsx
+ * // hooks.ts
+ * import { StoreContext } from '../context/StoreContext';
+ * export const { useStore, useDispatch, useSelector, useSliceProp, useSliceProps } =
+ *   createQuoHooks<'counter' | 'todos', AppState, AM>(StoreContext);
+ *
+ * // component.tsx
+ * function Counter() {
+ *   const value = useSliceProp({ reducer: 'counter', property: 'value' });
+ *   const dispatch = useDispatch();
+ *   return <button onClick={() => dispatch('ui','increment',1)}>{value}</button>;
+ * }
+ * ```
+ *
+ * @public
+ */
 export function createQuoHooks<
   R extends string,
   S extends Record<R, any>,
   AM extends ActionMapBase
 >(StoreContext: React.Context<StoreInstance<R, S, AM> | null>) {
+  /**
+   * Returns the current {@link StoreInstance} from context.
+   * Throws if used outside of a {@link StoreProvider}.
+   *
+   * @example
+   * ```tsx
+   * const store = useStore();
+   * const state = store.getState();
+   * ```
+   *
+   * @public
+   */
   function useStore(): StoreInstance<R, S, AM> {
     const ctx = useContext(StoreContext);
     if (!ctx) throw new Error("useStore must be used inside <StoreProvider>");
@@ -74,10 +167,35 @@ export function createQuoHooks<
     return ctx;
   }
 
+  /**
+   * Returns the store’s `dispatch` function (stable reference).
+   *
+   * @example
+   * ```tsx
+   * const dispatch = useDispatch();
+   * dispatch('ui','toggle',true);
+   * ```
+   *
+   * @public
+   */
   function useDispatch(): Dispatch<AM> {
     return useStore().dispatch;
   }
 
+  /**
+   * Selects a derived value from the store using an external-store subscription.
+   *
+   * @param selector - `(state) => value` derived from the current immutable state.
+   * @param isEqual  - Optional equality check (defaults to `Object.is`) to suppress re-renders.
+   * @returns The selected value, memoized by `isEqual`.
+   *
+   * @example
+   * ```tsx
+   * const total = useSelector(s => s.todos.items.length);
+   * ```
+   *
+   * @public
+   */
   function useSelector<T>(
     selector: (state: DeepReadonly<S>) => T,
     isEqual: (a: T, b: T) => boolean = Object.is
@@ -100,7 +218,37 @@ export function createQuoHooks<
     return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
   }
 
-  type UseSliceProp = {
+  /**
+   * Hook overloads for subscribing to a **single** property path (or glob) inside a slice.
+   *
+   * - Exact path returns the **typed value** at that path.
+   * - Exact path + `map` returns `T`.
+   * - Glob path (with `*`/`**`) requires `map`, which receives the **whole slice**.
+   *
+   * @example Exact path
+   * ```tsx
+   * const title = useSliceProp({ reducer: 'todos', property: 'items.0.title' });
+   * ```
+   *
+   * @example Exact path with map
+   * ```tsx
+   * const len = useSliceProp({ reducer: 'todos', property: 'items' }, items => items.length);
+   * ```
+   *
+   * @example Glob pattern
+   * ```tsx
+   * // Recompute when any title changes anywhere under items
+   * const titles = useSliceProp(
+   *   { reducer: 'todos', property: 'items.**' },
+   *   slice => slice.items.map(x => x.title),
+   *   shallowEqual
+   * );
+   * ```
+   *
+   * @public
+   */
+  /** @internal */
+  type UseSlicePropOverloads = {
     // Exact path, no map -> PathValue<S[R1], P>
     <R1 extends R, P extends Dotted<S[R1]>>(
       spec: { reducer: R1; property: P },
@@ -121,6 +269,7 @@ export function createQuoHooks<
     ): T;
   };
 
+  /** @internal */
   const useSlicePropImpl = (
     spec: { reducer: R; property: string },
     map?: (value: unknown) => unknown,
@@ -163,10 +312,36 @@ export function createQuoHooks<
     return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
   };
 
-  const useSliceProp = useSlicePropImpl as unknown as UseSliceProp;
+  /**
+   * Subscribe to a **single** path/glob within a slice and return the selected value.
+   * See overload signatures above.
+   *
+   * @public
+   */
+  const useSliceProp = useSlicePropImpl as unknown as UseSliceProp<R, S>;
 
+  /**
+   * Subscribe to **multiple** paths/globs and compute a derived value from the whole state.
+   *
+   * Re-runs `selector(state)` only when any of the specified paths/globs emit a change.
+   *
+   * @example
+   * ```tsx
+   * const total = useSliceProps(
+   *   [
+   *     { reducer: 'todos',  property: ['items.**'] },
+   *     { reducer: 'filter', property: 'q' }
+   *   ],
+   *   (s) => s.todos.items.filter(x => x.title.includes(s.filter.q)).length
+   * );
+   * ```
+   *
+   * @public
+   */
+  /** @internal */
   type OneOrMany<T> = T | readonly T[];
-  type UseSliceProps = {
+  /** @internal */
+  type UseSlicePropsOverloads = {
     <R1 extends R, T>(
       specs: Array<{ reducer: R1; property: OneOrMany<WithGlob<Dotted<S[R1]>>> }>,
       selector: (state: DeepReadonly<S>) => T,
@@ -174,6 +349,7 @@ export function createQuoHooks<
     ): T;
   };
 
+  /** @internal */
   const useSlicePropsImpl = <T,>(
     specs: Array<{ reducer: R; property: OneOrMany<string> }>,
     selector: (state: DeepReadonly<S>) => T,
@@ -229,7 +405,13 @@ export function createQuoHooks<
     return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
   };
 
-  const useSliceProps = useSlicePropsImpl as unknown as UseSliceProps;
+  /**
+   * Subscribe to **many** paths/globs and return a memoized derived value.
+   * See overload signatures above.
+   *
+   * @public
+   */
+  const useSliceProps = useSlicePropsImpl as unknown as UseSliceProps<R, S>;
 
   return {
     useStore,

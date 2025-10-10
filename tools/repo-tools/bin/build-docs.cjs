@@ -9,8 +9,7 @@
  * - Extracts summary, remarks, examples, since/deprecated
  * - Writes:
  *   - <out>/<package>/symbols/<modulePath>/<symbol>.json
- *   - <out>/<package>/api-index.json
- */
+ *   - <out>/<package>/api-index.json */
 
 const fs = require('fs');
 const path = require('path');
@@ -149,7 +148,7 @@ function extractCommentBits(comment) {
     deprecated: '',
     since: [],
     see: [],
-    examples: [] // { code, caption? }
+    examples: []
   };
   if (!comment) return out;
 
@@ -265,10 +264,12 @@ function typeToString(t) {
       const head = t.head || '';
       const tail = t.tail || [];
       const parts = [head];
+
       for (const seg of tail) {
         parts.push('${' + typeToString(seg.type) + '}');
         parts.push(seg.text || '');
       }
+
       return '`' + parts.join('') + '`';
     }
     case 'namedTupleMember':
@@ -295,14 +296,18 @@ function signatureToShortString(sig) {
     const rest = p.rest ? '...' : '';
     const opt = p.flags?.isOptional ? '?' : '';
     const name = p.name || 'arg';
+
     return `${rest}${name}${opt}: ${typeToString(p.type)}`;
   }).join(', ');
+
   const ret = typeToString(sig.type);
+
   return `${tps}(${params}) => ${ret}`;
 }
 
 function extractParams(sig) {
   const paramDocs = extractParamDocs(sig);
+
   return (sig.parameters || []).map(p => ({
     name: p.name,
     rest: !!p.rest,
@@ -317,6 +322,7 @@ function extractSignatures(node) {
   // functions, methods, constructors may have one or more signatures
   const sigs = node.signatures || node.signatures?.length ? node.signatures : node?.implementationOf?.signatures;
   const arr = Array.isArray(sigs) ? sigs : [];
+
   return arr.map(sig => ({
     text: signatureToShortString(sig),
     parameters: extractParams(sig),
@@ -364,10 +370,11 @@ function extractClassOrInterfaceMembers(node) {
         type: typeToString(c.type || c.getSignature?.type),
         comment: extractCommentBits(c.comment)
       });
+
       continue;
     }
-    // Ignore private/protected or unsupported kinds
   }
+
   return out;
 }
 
@@ -377,6 +384,7 @@ function buildIndexMaps(root) {
 
   (function visit(n, parent) {
     byId.set(n.id, n);
+
     if (parent) parentOf.set(n.id, parent.id);
     if (Array.isArray(n.children)) n.children.forEach(ch => visit(ch, n));
     if (Array.isArray(n.groups)) {
@@ -390,20 +398,24 @@ function buildIndexMaps(root) {
 function buildFQName(node, byId, parentOf) {
   const names = [];
   let cur = node;
+
   while (cur) {
     names.push(cur.name);
     const pid = parentOf.get(cur.id);
+
     if (!pid) break;
     cur = byId.get(pid);
     // Stop at project root
     if (!cur || getKind(cur) === 'Project') break;
   }
-  // reverse: project → … → node ; we want module/namespace path + symbol
+
+  // reverse: we want module/namespace path + symbol
   names.reverse();
   // Remove project name if present
   if (names.length > 1 && getKind(byId.get(parentOf.get(node.id))) === 'Project') {
-    // keep as-is; parent chain already includes modules
+    // keep as-is
   }
+
   return names.join('.');
 }
 
@@ -411,27 +423,34 @@ function modulePathFor(node, byId, parentOf) {
   // Build a path of parent names for Module/Namespace nodes only
   const segs = [];
   let cur = node;
+
   while (cur) {
     const pid = parentOf.get(cur.id);
     const parent = pid ? byId.get(pid) : null;
+
     if (!parent) break;
     if (getKind(parent) === 'Module' || getKind(parent) === 'Namespace') {
       segs.push(parent.name);
     }
+
     cur = parent;
   }
+
   segs.reverse();
+
   return segs.join('/');
 }
 
 function symbolOutputPath(baseOut, pkg, modulePath, nodeName, nodeId) {
   const mod = modulePath ? `${modulePath}/` : '';
   const file = `${slugify(nodeName)}-${nodeId}.json`; // id guard against collisions
+
   return path.join(baseOut, pkg, 'symbols', mod, file);
 }
 
 function relativeSymbolRoute(pkg, modulePath, nodeName, nodeId) {
   const mod = modulePath ? `${modulePath}/` : '';
+
   return `${pkg}/symbols/${mod}${slugify(nodeName)}-${nodeId}.json`;
 }
 
@@ -486,6 +505,7 @@ function normalizeNode(node, byId, parentOf) {
     implements: (node.implementedTypes || []).map(typeToString),
     implementedBy: (node.implementedBy || []).map(typeToString)
   };
+
   if (!heritage.extends.length) delete heritage.extends;
   if (!heritage.implements.length) delete heritage.implements;
   if (!heritage.implementedBy || !heritage.implementedBy.length) delete heritage.implementedBy;
@@ -509,6 +529,7 @@ function scoreNodeForIndex(n) {
   if (n.signatures && n.signatures.length) score += 1;
   if (n.members && n.members.length) score += 1;
   if (n.tags?.deprecated) score -= 2;
+
   return score;
 }
 
@@ -519,6 +540,7 @@ function main() {
   const topLevel = [];
   for (const n of byId.values()) {
     const kind = getKind(n);
+
     if (!allowedTopLevelKind(kind)) continue;
     if (!isPublic(n)) continue;
     if (!isExported(n)) continue;
@@ -526,7 +548,7 @@ function main() {
     // Avoid project root & intermediate reflection-only nodes
     if (kind === 'Project') continue;
 
-    // Skip modules with no public children (we will still include them in index if you prefer)
+    // Skip modules with no public children
     topLevel.push(n);
   }
 
@@ -556,6 +578,7 @@ function main() {
       const norm = normalizeNode(node, byId, parentOf);
       const modPath = modulePathFor(node, byId, parentOf);
       const outPath = symbolOutputPath(OUT_DIR, PACKAGE_NAME, modPath, node.name, node.id);
+
       writeJSON(outPath, norm);
       symbolRecords.push({
         id: norm.id,
@@ -570,6 +593,7 @@ function main() {
         route: relativeSymbolRoute(PACKAGE_NAME, modPath, node.name, node.id),
         score: scoreNodeForIndex(norm)
       });
+
       written++;
       continue;
     }
@@ -579,6 +603,7 @@ function main() {
       const norm = normalizeNode(node, byId, parentOf);
       const modPath = modulePathFor(node, byId, parentOf);
       const outPath = symbolOutputPath(OUT_DIR, PACKAGE_NAME, modPath, node.name, node.id);
+
       writeJSON(outPath, norm);
       symbolRecords.push({
         id: norm.id,
@@ -593,6 +618,7 @@ function main() {
         route: relativeSymbolRoute(PACKAGE_NAME, modPath, node.name, node.id),
         score: scoreNodeForIndex(norm)
       });
+
       written++;
     }
   }
@@ -601,8 +627,10 @@ function main() {
   symbolRecords.sort((a, b) => {
     // by score desc, then kind priority, then name
     const kd = kindRank(a.kind) - kindRank(b.kind);
+
     if (b.score !== a.score) return b.score - a.score;
     if (kd !== 0) return kd;
+    
     return a.name.localeCompare(b.name);
   });
 

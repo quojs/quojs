@@ -9,29 +9,64 @@ import type {
   ConnectDeep,
 } from "@quojs/core";
 
-// Infer the value at a dotted path P in object T (supports numeric array segments)
+/**
+ * Resolves the value type at a **dotted path** `P` inside object/array `T`.
+ * Supports numeric segments for arrays (e.g., `"items.0.title"`).
+ *
+ * @typeParam T - Root type to index into.
+ * @typeParam P - Dotted path string.
+ *
+ * @example
+ * ```ts
+ * type S = { todos: Array<{ title: string; done: boolean }> };
+ * type T1 = PathValue<S['todos'], '0.title'>; // string
+ * type T2 = PathValue<S, 'todos.0'>;          // { title: string; done: boolean }
+ * ```
+ *
+ * @internal
+ */
 export type PathValue<T, P extends string> =
   P extends `${infer K}.${infer Rest}`
-    ? K extends `${number}`
-      ? T extends readonly (infer U)[]
-        ? PathValue<U, Rest>
-        : any
-      : K extends keyof T
-        ? PathValue<T[K], Rest>
-        : any
-    : P extends `${number}`
-      ? T extends readonly (infer U)[]
-        ? U
-        : any
-      : P extends keyof T
-        ? T[P]
-        : any;
+  ? K extends `${number}`
+  ? T extends readonly (infer U)[]
+  ? PathValue<U, Rest>
+  : any
+  : K extends keyof T
+  ? PathValue<T[K], Rest>
+  : any
+  : P extends `${number}`
+  ? T extends readonly (infer U)[]
+  ? U
+  : any
+  : P extends keyof T
+  ? T[P]
+  : any;
 
-type OneOrMany<T> = T | readonly T[];
+/**
+ * Accepts either a single value or a readonly array of that value.
+ * Useful for APIs that take one-or-many keys.
+ *
+ * @example
+ * ```ts
+ * function takeIds(ids: OneOrMany<string>) { /* ... *\/ }
+ * takeIds('a');
+ * takeIds(['a','b'] as const);
+ * ```
+ *
+ * @internal
+ */
+export type OneOrMany<T> = T | readonly T[];
 
+/** @internal */
 function hasWildcard(p: string): boolean { return p.includes("*"); }
+/** @internal */
 function normalizePath(p: string): string { return p.replace(/^\./, ""); }
+/** @internal */
 function splitPath(p: string): string[] { return normalizePath(p).split(".").filter(Boolean); }
+/**
+ * Reads a dotted path from an object; returns `undefined` when a segment is missing.
+ * @internal
+ */
 function getAtPath(obj: any, path: string): any {
   if (!path) return obj;
 
@@ -45,6 +80,22 @@ function getAtPath(obj: any, path: string): any {
   return cur;
 }
 
+/**
+ * Returns the current {@link StoreInstance} from {@link StoreContext}.
+ * Throws if used outside of a `<StoreProvider>`.
+ *
+ * @typeParam AM - Action map type.
+ * @typeParam R  - Slice name union.
+ * @typeParam S  - State record keyed by `R`.
+ *
+ * @example
+ * ```tsx
+ * const store = useStore<MyAM, 'counter' | 'todos', AppState>();
+ * const state = store.getState();
+ * ```
+ *
+ * @public
+ */
 export function useStore<AM extends ActionMapBase, R extends string, S extends Record<R, any>>(): StoreInstance<R, S, AM> {
   const ctx = useContext(StoreContext);
   if (!ctx) throw new Error("useStore must be used inside <StoreProvider>");
@@ -52,10 +103,34 @@ export function useStore<AM extends ActionMapBase, R extends string, S extends R
   return ctx as StoreInstance<R, S, AM>;
 }
 
+/**
+ * Returns the store’s `dispatch` function (stable reference).
+ *
+ * @typeParam AM - Action map type.
+ *
+ * @example
+ * ```tsx
+ * const dispatch = useDispatch<MyAM>();
+ * dispatch('ui', 'toggle', true);
+ * ```
+ *
+ * @public
+ */
 export function useDispatch<AM extends ActionMapBase>(): Dispatch<AM> {
   return useStore<AM, any, any>().dispatch;
 }
 
+/**
+ * Shallow object equality using `Object.is` per-key.
+ *
+ * @example
+ * ```ts
+ * shallowEqual({ a: 1 }, { a: 1 }) // true
+ * shallowEqual({ a: 1 }, { a: 2 }) // false
+ * ```
+ *
+ * @public
+ */
 export function shallowEqual<T extends Record<string, any>>(a: T, b: T) {
   if (Object.is(a, b)) return true;
   if (!a || !b) return false;
@@ -70,6 +145,22 @@ export function shallowEqual<T extends Record<string, any>>(a: T, b: T) {
   return true;
 }
 
+/**
+ * Selects a derived value from the store using an external-store subscription.
+ * Re-renders when the selected value changes per `isEqual`.
+ *
+ * @typeParam S - State type returned by `getState()`.
+ * @typeParam T - Selected value type.
+ * @param selector - `(state) => value` derived from the current state.
+ * @param isEqual  - Optional equality comparator (defaults to `Object.is`).
+ *
+ * @example
+ * ```tsx
+ * const total = useSelector((s: AppState) => s.todos.items.length);
+ * ```
+ *
+ * @public
+ */
 export function useSelector<S extends Record<any, any>, T>(
   selector: (state: S) => T,
   isEqual: (a: T, b: T) => boolean = Object.is
@@ -94,17 +185,46 @@ export function useSelector<S extends Record<any, any>, T>(
 }
 
 /**
- * Fine-grained single-prop selector
- * Re-renders only when the specified reducer.property/path actually changes.
+ * Fine-grained **single-path** selector for a slice.
  *
- * Supports:
- *   - Exact root prop:   { reducer: "todo", property: "data" }
- *   - Exact deep path:   { reducer: "todo", property: "data.123.title" }
- *   - Wildcards (pattern): { reducer: "todo", property: "data.*" } or "data.**"
+ * Re-renders only when the specified `reducer.property` (dotted path) actually changes.
  *
- * Overloads:
- *   - Exact path (no *): returns the precise PathValue when `map` is omitted
- *   - Glob path (with *): requires `map`; return type is whatever `map` produces */
+ * **Supports**
+ * - Exact root prop: `{ reducer: "todo", property: "data" }`
+ * - Exact deep path: `{ reducer: "todo", property: "data.123.title" }`
+ * - Wildcards (pattern): `{ reducer: "todo", property: "data.*" }` or `"data.**"`
+ *
+ * **Overloads**
+ * - Exact path (no `*`): returns the precise `PathValue` when `map` is omitted
+ * - Exact path + `map`: returns `T` from `map(value)`
+ * - Glob path (with `*`/`**`): requires `map` and returns `T` from `map(slice)`
+ *
+ * @example Exact path
+ * ```tsx
+ * const title = useSliceProp<'todos', AppState, 'items.0.title'>(
+ *   { reducer: 'todos', property: 'items.0.title' }
+ * );
+ * ```
+ *
+ * @example Map over exact path
+ * ```tsx
+ * const len = useSliceProp(
+ *   { reducer: 'todos', property: 'items' },
+ *   items => items.length
+ * );
+ * ```
+ *
+ * @example Glob pattern over slice
+ * ```tsx
+ * const titles = useSliceProp(
+ *   { reducer: 'todos', property: 'items.**' },
+ *   slice => slice.items.map(x => x.title),
+ *   shallowEqual
+ * );
+ * ```
+ *
+ * @public
+ */
 export function useSliceProp<R extends string, S extends Record<R, any>, P extends Dotted<S[R]>>(
   spec: { reducer: R; property: P },
 ): PathValue<S[R], P>;
@@ -157,9 +277,32 @@ export function useSliceProp<R extends string, S extends Record<R, any>, T = any
 }
 
 /**
- * Multi-prop fine-grained selector
- * Subscribes to several reducer.paths (supports deep & wildcard).
- * Notifies once per hit; selector runs against the full state */
+ * **Multi-path** fine-grained selector.
+ *
+ * Subscribes to several `reducer.property` paths (supports deep & wildcard)
+ * and recomputes `selector(state)` when any of them change.
+ *
+ * @typeParam R - Slice name union.
+ * @typeParam S - State record keyed by `R`.
+ * @typeParam T - Derived value type.
+ *
+ * @param specs    - Array of `{ reducer, property }`, where `property` can be a string or array of strings. Supports `*`/`**`.
+ * @param selector - `(state) => T` function run against the full state.
+ * @param isEqual  - Equality comparator for the derived value (defaults to `Object.is`).
+ *
+ * @example
+ * ```tsx
+ * const total = useSliceProps<'todos' | 'filter', AppState, number>(
+ *   [
+ *     { reducer: 'todos',  property: ['items.**'] },
+ *     { reducer: 'filter', property: 'q' }
+ *   ],
+ *   (s) => s.todos.items.filter(x => x.title.includes(s.filter.q)).length
+ * );
+ * ```
+ *
+ * @public
+ */
 export function useSliceProps<R extends string, S extends Record<R, any>, T>(
   specs: Array<{ reducer: R; property: OneOrMany<WithGlob<Dotted<S[R]>>> }>,
   selector: (state: S) => T,
@@ -184,7 +327,7 @@ export function useSliceProps<R extends string, S extends Record<R, any>, T>(
   const subscribe = useMemo(
     () => (notify: () => void) => {
       const tick = () => { versionRef.current++; notify(); };
-  
+
       // Connect once per property (handles array or single string)
       const unsubs = normalizedSpecs.flatMap((sp) => {
         const props = Array.isArray(sp.property) ? sp.property : [sp.property];
@@ -193,7 +336,7 @@ export function useSliceProps<R extends string, S extends Record<R, any>, T>(
           store.connect({ reducer: sp.reducer, property: p } as unknown as ConnectDeep<R, S>, tick)
         );
       });
-  
+
       return () => { for (const u of unsubs) u(); };
     },
     [store, normalizedSpecs]
@@ -204,7 +347,7 @@ export function useSliceProps<R extends string, S extends Record<R, any>, T>(
       if (lastVerRef.current !== versionRef.current) {
         const next = selector(store.getState() as S);
         const prev = lastSelRef.current as T | undefined;
-        
+
         if (prev === undefined || !isEqual(prev, next)) {
           lastSelRef.current = next;
         }
