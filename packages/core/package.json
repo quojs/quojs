@@ -9,7 +9,8 @@
     "test": "pnpm vitest --coverage --watch=false",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "prepublishOnly": "node ../../common/scripts/copy-license.js"
+    "prepublishOnly": "node ../../common/scripts/copy-license.js",
+    "docs": "typedoc --json ./.typedoc/core.json --options typedoc.core.json"
   },
   "license": "MPL-2.0",
   "author": {
@@ -70,7 +71,9 @@
     "@vitest/coverage-v8": "3.2.4",
     "@vitest/ui": "^3.2.4",
     "vite-plugin-banner": "0.8.1",
-    "typescript": "~5.8.3",
+    "typedoc": "^0.28.13",
+    "typedoc-plugin-markdown": "4.9.0",
+    "typescript": "5.9.3",
     "vite": "^7.0.3",
     "vite-plugin-dts": "^4.5.4",
     "vitest": "^3.2.4"
