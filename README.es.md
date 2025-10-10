@@ -9,9 +9,9 @@ y **hooks para React preparados para Suspense y Concurrent Mode**.
 
 ## Paquetes
 
-- **[@quojs/core](./packages/quojs/README.md)** — *Store* núcleo, *reducers*, *middleware*, *effects*
+- **[@quojs/core](./packages/core/README.md)** — *Store* núcleo, *reducers*, *middleware*, *effects*
   (agnóstico del *framework*)
-- **[@quojs/react](./packages/quojs-react/README.md)** — *Provider* y *hooks* para React
+- **[@quojs/react](./packages/react/README.md)** — *Provider* y *hooks* para React
   (compatibles con Suspense/Concurrent)
 - **[examples/](./examples/)** — ejemplos ejecutables
 
@@ -42,10 +42,7 @@ Para ayudarte a decidir si Quo.js es la mejor opción, hemos preparado comparaci
 - **Async & effects** (cómo se expresan *workflows* y efectos secundarios)  
 - **Integración con React** (selectores, Suspense, soporte para concurrent mode)
 
-👉 Revisa las comparaciones aquí:
-- [Quo.js vs Redux](./docs/es/comparacion/con-redux.md) y el [proyecto de ejemplo](./examples/quojs-in-react/README.es.md)
-- [Quo.js vs MobX](./docs/es/comparacion/con-mobx.md)
-*(y más próximamente)*
+👉 Revisa las comparaciones [aquí](https://quojs.dev).
 
 ## Inicio rápido (Monorepo)
 
@@ -69,8 +66,15 @@ Consulta la **Guía de Desarrollo** para SDLC, caché y lanzamientos:
 
 ## Docs
 
-- [Núcleo](./packages/quojs/docs/es/core.md) (o documentación del paquete en `packages/quojs/`)
-- [Integración con React](./packages/quojs/docs/es/core.md)
+### Núcleo
+
+- [Desarrollador](https://docs.quojs.dev/es/v0/core): guía de inicio rápido, tutorial, gists, etc.
+- [TypeDoc](./packages/core/docs/es/README.md): una documentación más técnica extraída utilizando TypeDoc.
+
+### Bindings para React
+
+- [Desarrollador](https://docs.quojs.dev/es/v0/react): guía de inicio rápido, tutorial, gists, etc.
+- [TypeDoc](./packages/react/docs/es/README.md): una documentación más técnica extraída utilizando TypeDoc.
 
 ## Contribuir
 

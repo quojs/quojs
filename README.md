@@ -49,11 +49,7 @@ popular libraries. Each document explores:
 - **Async & effects** (how workflows and side-effects are expressed)
 - **React integration** (selectors, Suspense, concurrent mode readiness)
 
-👉 Check out the comparisons here:
-
-- [Quo.js vs Redux](./docs/en/comparison/redux-comparison.md) and the [example project](./examples/quojs-in-react/README.md)
-- [Quo.js vs MobX](./docs/en/comparison/mobx-comparison.md)
-_(and more to come)_
+👉 Check out the comparisons [here](https://quojs.dev)
 
 ## Quick Start (Monorepo)
 
@@ -77,8 +73,15 @@ See the **Developer Guide** for SDLC, caching, and releases:
 
 ## Docs
 
-- [Core](./packages/quojs/docs/es/core.md) (o documentación del paquete en `packages/quojs/`)
-- [React Bindings](./packages/quojs/docs/es/core.md)
+### Core
+
+- [Developer Docs](https://docs.quojs.dev/en/v0/core): quick-start guide, tutorial, recipes, etc.
+- [TypeDoc](./packages/core/docs/en/README.md): a more technical documentation extracted using TypeDoc.
+
+### React bindings
+
+- [Developer Docs](https://docs.quojs.dev/en/v0/react): quick-start guide, tutorial, recipes, etc.
+- [TypeDoc](./packages/react/docs/en/README.md): a more technical documentation extracted using TypeDoc.
 
 ## Contributing
 
