@@ -79,3 +79,6 @@ yarn.lock
 # Verdaccio
 ops/verdaccio/storage/.verdaccio-db.json
 ops/verdaccio/storage/**
+
+# TypeDocs artifacts
+.typedoc/

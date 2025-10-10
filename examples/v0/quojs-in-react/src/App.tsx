@@ -1,6 +1,6 @@
 import { createBrowserRouter, RouterProvider } from "react-router";
 
-import { StoreProvider as DuxProvider } from "@quojs/react";
+import { StoreProvider as QuoProvider } from "@quojs/react";
 import { store as duxStore } from "./state/quojs";
 import { QuojsTodoPage } from "./components/quojs/QuojsTodoPage";
 
@@ -10,11 +10,11 @@ import { ReduxTodoPage } from "./components/redux/ReduxTodoPage";
 import { Layout } from "./components/layout/Layout.component";
 import { Home } from "./pages/Home.page";
 
-function DuxRoute() {
+function QuoRoute() {
   return (
-    <DuxProvider store={duxStore}>
+    <QuoProvider store={duxStore}>
       <QuojsTodoPage />
-    </DuxProvider>
+    </QuoProvider>
   );
 }
 
@@ -31,7 +31,7 @@ export const router = createBrowserRouter([
     element: <Layout />,
     children: [
       { path: "/", element: <Home /> },
-      { path: "/quojs", element: <DuxRoute /> },
+      { path: "/quojs", element: <QuoRoute /> },
       { path: "/redux", element: <RtkRoute /> },
     ],
   },

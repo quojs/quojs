@@ -1,4 +1,4 @@
-![Quo.js logo](../../assets/logo.svg)
+![Quo.js logo](https://github.com/quojs/quojs/blob/main/assets/logo.svg)
 
 # Quo.js The state of things, rewritten.
 
@@ -28,13 +28,10 @@ npm i @quojs/core
 
 ## Docs
 
-- [Core concepts](./docs/en/core.md): actions, reducers, _middleware_, _effects_
+- [Developer Docs](https://docs.quojs.dev/en/v0/core): quick-start guide, tutorial, recipes, etc.
+- [TypeDoc](./docs/en/README.md): a more technical documentation extracted using TypeDoc.
 
-## Recipes
-
-- [Immer integration](./docs/en/recipes/immer-wrapped-reducer.md)
-
-## Enlaces
+## Links
 
 - [Monorepo](../../)
 - [Governance](../../GOVERNANCE.md)

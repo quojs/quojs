@@ -22,5 +22,14 @@
   },
   "devDependencies": {
     "@changesets/cli": "^2"
+  },
+  "pnpm": {
+    "overrides": {
+      "typedoc": "0.28.13",
+      "typescript": "5.9.3",
+      "typedoc>typescript": "5.9.3",
+      "typedoc-plugin-markdown>typedoc": "0.28.13",
+      "typedoc-plugin-markdown>typescript": "5.9.3"
+    }
   }
 }

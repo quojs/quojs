@@ -114,14 +114,7 @@ export function App() {
 
 Listo: sin thunks ni generadores. Modelas eventos reales y conectas tus reducers a `(channel, event)`.
 
-## Documentation
+## Docs
 
-- [Comienza Ya!](./docs/es/inicio-rapido.md)
-- [Hooks](./docs/es/hooks.md)
-- [Suspense](./docs/es/suspense.md)
-- [Patrones](./docs/es/patterns.md)
-
-## Gists
-- [Genéricos](./docs/es/gist/generics.md)
-- [Inferencia de Tipos](./docs/es/gist/inferencia-de-topos.md)
-
+- [Desarrollador](https://docs.quojs.dev/es/v0/react): guía de inicio rápido, tutorial, gists, etc.
+- [TypeDoc](./docs/es/README.md): una documentación más técnica extraída utilizando TypeDoc.

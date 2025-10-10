@@ -42,7 +42,7 @@ export type Dispatch<AM extends ActionMapBase> = <C extends keyof AM, E extends 
 export type Unsubscribe = () => void;
 
 /**
- * Store spec – what you feed into the constructor / factory */
+ * Store spec - what you feed into the constructor / factory */
 export type StoreSpec<R extends string, S extends Record<R, any>, AM extends ActionMapBase> = {
   /**
    * Store name.
