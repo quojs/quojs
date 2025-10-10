@@ -120,11 +120,5 @@ That’s it. No boilerplate actions, no selectors, no thunks. You model events d
 
 ## Documentation
 
-- [Quick start](./docs/en/quick-start.md)
-- [Hooks](./docs/en/hooks.md)
-- [Suspense](./docs/en/suspense.md)
-- [Patterns](./docs/en/patterns.md)
-
-## Cheat-sheets
-- [Gist: Generics](./docs/en/gist/generics.md)
-- [Gist: Type Inference](./docs/en/gist/inferred-createQuoHooks.md)
+- [Developer Docs](https://docs.quojs.dev/en/v0/react): quick-start guide, tutorial, recipes, etc.
+- [TypeDoc](./docs/en/README.md): a more technical documentation extracted using TypeDoc.
