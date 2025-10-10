@@ -23,7 +23,8 @@ npm i @quojs/core
 
 ## Docs
 
-- [Conceptos clave](./docs/es/core.md): acciones, reducers, _middleware_, _effects_
+- [Desarrollador](https://docs.quojs.dev/es/v0/core): guía de inicio rápido, tutorial, gists, etc.
+- [TypeDoc](./docs/es/README.md): una documentación más técnica extraída utilizando TypeDoc.
 
 ## Enlaces
 
