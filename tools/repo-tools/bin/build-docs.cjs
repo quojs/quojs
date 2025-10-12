@@ -3,7 +3,7 @@
 'use strict';
 
 /**
- * TypeDoc JSON → UI-focused shards
+ * TypeDoc JSON -> UI-focused shards
  * - Normalizes symbols (public/exported only)
  * - Flattens signatures/members
  * - Extracts summary, remarks, examples, since/deprecated
@@ -19,6 +19,46 @@ if (!args.input || !args.out) {
   console.error('Usage: node build-docs.cjs --input <typedoc.json> --out <outputDir> [--package <name>]');
   process.exit(1);
 }
+
+const KIND = {
+  0: "None",
+  1: "Project",
+  2: "Module",
+  4: "Namespace",
+  8: "Enum",
+  16: "EnumMember",
+  32: "Variable",
+  64: "Function",
+  128: "Class",
+  256: "Interface",
+  512: "Constructor",
+  1024: "Property",
+  2048: "Method",
+  4096: "CallSignature",
+  8192: "IndexSignature",
+  16384: "ConstructorSignature",
+  32768: "Parameter",
+  65536: "TypeLiteral",
+  131072: "TypeParameter",
+  262144: "Accessor",
+  524288: "GetSignature",
+  1048576: "SetSignature",
+  2097152: "ObjectLiteral",
+  4194304: "TypeAlias",
+  8388608: "Reference",
+  16777216: "Document"
+};
+
+const PAGE_WORTHY_IDS = [
+    2,
+    4,
+    8,
+    64,
+    128,
+    256,
+    512,
+    2048,
+];
 
 const INPUT = path.resolve(process.cwd(), args.input);
 const OUT_DIR = path.resolve(process.cwd(), args.out);
@@ -78,33 +118,11 @@ function joinParts(parts) {
       // typedoc 0.28 uses { kind: 'text'|'code'|..., text: string }
       if (p.text != null) return p.text;
       if (p.code != null) return p.code;
+
       // fallback if different shape
-      return (p.kind && p.kind.toUpperCase() === 'CODE' && p.text) ? p.text : '';
+      return '';
     })
     .join('');
-}
-
-function getKind(node) {
-  // Prefer kindString if present; fallback to numeric kind classification
-  if (node.kindString) return node.kindString;
-  // Fallback map (partial) in case kindString missing
-  const map = {
-    1: 'Project',
-    2: 'Module',
-    4: 'Namespace',
-    16: 'Enum',
-    32: 'Enum member',
-    64: 'Variable',
-    128: 'Class',
-    256: 'Interface',
-    512: 'Function',
-    1024: 'Property',
-    2048: 'Method',
-    4096: 'Constructor',
-    65536: 'Type alias',
-    4194304: 'Call signature' // etc.
-  };
-  return map[node.kind] || `kind:${node.kind}`;
 }
 
 function isHidden(node) {
@@ -124,21 +142,7 @@ function isExported(node) {
   if (flags.isExported) return true;
   // If the node has its own document (top-level) and is public, consider exported.
   // Also accept classes/interfaces/functions at top-level modules.
-  return !!flags.hasOwnDocument || !!node.sources || getKind(node) === 'Module';
-}
-
-function allowedTopLevelKind(kindString) {
-  const k = String(kindString).toLowerCase();
-  return (
-    k === 'module' ||
-    k === 'namespace' ||
-    k === 'class' ||
-    k === 'interface' ||
-    k === 'function' ||
-    k === 'enum' ||
-    k === 'variable' ||
-    k === 'type alias'
-  );
+  return !!flags.hasOwnDocument || !!node.sources || node.kind === 2;
 }
 
 function extractCommentBits(comment) {
@@ -341,19 +345,18 @@ function extractClassOrInterfaceMembers(node) {
 
   for (const c of children) {
     if (!isPublic(c)) continue;
-    const kind = getKind(c);
-    if (kind === 'Constructor') {
+    if (kind === 512) {
       const sigs = extractSignatures(c);
       out.push({
-        kind: 'constructor',
+        kind: KIND[node.kind],
         name: 'constructor',
         signatures: sigs
       });
       continue;
     }
-    if (kind === 'Method') {
+    if ([64, 2048].includes(kinD)) {
       out.push({
-        kind: 'method',
+        kind: KIND[node.kind],
         name: c.name,
         typeParams: typeParamsToChips(c.typeParameters),
         signatures: extractSignatures(c),
@@ -361,9 +364,9 @@ function extractClassOrInterfaceMembers(node) {
       });
       continue;
     }
-    if (kind === 'Property' || kind === 'Accessor') {
+    if (kind === 1024 || kind === 262144) {
       out.push({
-        kind: 'property',
+        kind: KIND[node.kind],
         name: c.name,
         optional: !!c.flags?.isOptional,
         readonly: !!c.flags?.isReadonly,
@@ -406,13 +409,13 @@ function buildFQName(node, byId, parentOf) {
     if (!pid) break;
     cur = byId.get(pid);
     // Stop at project root
-    if (!cur || getKind(cur) === 'Project') break;
+    if (!cur || cur.kind === 1) break;
   }
 
   // reverse: we want module/namespace path + symbol
   names.reverse();
   // Remove project name if present
-  if (names.length > 1 && getKind(byId.get(parentOf.get(node.id))) === 'Project') {
+  if (names.length > 1 && byId.get(parentOf.get(node.id)).kind === 1) {
     // keep as-is
   }
 
@@ -429,7 +432,7 @@ function modulePathFor(node, byId, parentOf) {
     const parent = pid ? byId.get(pid) : null;
 
     if (!parent) break;
-    if (getKind(parent) === 'Module' || getKind(parent) === 'Namespace') {
+    if ([2, 4].includes(parent.kind) === 'Module') {
       segs.push(parent.name);
     }
 
@@ -455,7 +458,6 @@ function relativeSymbolRoute(pkg, modulePath, nodeName, nodeId) {
 }
 
 function normalizeNode(node, byId, parentOf) {
-  const kindString = getKind(node);
   const fqName = buildFQName(node, byId, parentOf);
   const modulePath = modulePathFor(node, byId, parentOf);
 
@@ -469,7 +471,7 @@ function normalizeNode(node, byId, parentOf) {
     id: node.id,
     name: node.name,
     fqName,
-    kind: kindString.toLowerCase().replace(/\s+/g, ''), // 'typealias', 'function', etc.
+    kind: KIND[node.kind],
     package: PACKAGE_NAME,
     modulePath,
     exported: isExported(node),
@@ -492,7 +494,7 @@ function normalizeNode(node, byId, parentOf) {
 
   // Members (for classes/interfaces)
   let members = [];
-  if (kindString === 'Class' || kindString === 'Interface') {
+  if ([128, 256].includes(node.kind)) {
     members = extractClassOrInterfaceMembers(node);
   }
 
@@ -539,14 +541,11 @@ function main() {
 
   const topLevel = [];
   for (const n of byId.values()) {
-    const kind = getKind(n);
-
-    if (!allowedTopLevelKind(kind)) continue;
+    if (!PAGE_WORTHY_IDS.includes(n)) continue;
     if (!isPublic(n)) continue;
-    if (!isExported(n)) continue;
 
     // Avoid project root & intermediate reflection-only nodes
-    if (kind === 'Project') continue;
+    if (kind === 1) continue;
 
     // Skip modules with no public children
     topLevel.push(n);
@@ -557,20 +556,12 @@ function main() {
 
   for (const node of topLevel) {
     // Only real symbol-bearing nodes (skip empty modules/namespaces unless they carry docs)
-    const kind = getKind(node);
     const hasDocs = !!(node.comment && (joinParts(node.comment.summary) || (node.comment.blockTags || []).length));
     const hasChildren = Array.isArray(node.children) && node.children.some(isPublic);
-
-    const isSymbol =
-      kind === 'Class' ||
-      kind === 'Interface' ||
-      kind === 'Function' ||
-      kind === 'Enum' ||
-      kind === 'Variable' ||
-      kind === 'Type alias';
+    const isSymbol = PAGE_WORTHY_IDS.includes(node.kind);
 
     if (!isSymbol && !hasDocs && !hasChildren) {
-      // A module/namespace without docs nor children we care about — skip
+      // A module/namespace without docs nor children we care about, skip
       continue;
     }
 
@@ -583,7 +574,7 @@ function main() {
       symbolRecords.push({
         id: norm.id,
         name: norm.name,
-        kind: norm.kind,
+        kind: KIND[norm.kind],
         fqName: norm.fqName,
         package: norm.package,
         modulePath: norm.modulePath,
@@ -599,7 +590,7 @@ function main() {
     }
 
     // Optionally: write module/namespace pages if they have a comment
-    if ((kind === 'Module' || kind === 'Namespace') && hasDocs) {
+    if (([2,4].includes(norm.kind)) && hasDocs) {
       const norm = normalizeNode(node, byId, parentOf);
       const modPath = modulePathFor(node, byId, parentOf);
       const outPath = symbolOutputPath(OUT_DIR, PACKAGE_NAME, modPath, node.name, node.id);
@@ -608,7 +599,7 @@ function main() {
       symbolRecords.push({
         id: norm.id,
         name: norm.name,
-        kind: norm.kind,
+        kind:  KIND[norm.kind],
         fqName: norm.fqName,
         package: norm.package,
         modulePath: norm.modulePath,
@@ -650,16 +641,19 @@ function main() {
 function kindRank(kind) {
   // Controls grouping order in nav/search
   const order = [
-    'class',
-    'interface',
-    'function',
-    'typealias',
-    'enum',
-    'variable',
-    'module',
-    'namespace'
+    128,
+    256,
+    512,
+    2048,
+    4194304,
+    8,
+    32,
+    64,
+    2,
+    4
   ];
   const i = order.indexOf(kind);
+
   return i === -1 ? 999 : i;
 }
 
