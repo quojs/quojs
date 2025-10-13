@@ -19,7 +19,7 @@ y **hooks para React preparados para Suspense y Concurrent Mode**.
 
 - 🗪 **Modelo Canal + Evento** — las acciones son `{ channel, event, payload }`; los *reducers* se suscriben
   exactamente a la granularidad que necesites.
-- 🎯 **suscripciones atómicas** — suscríbete a propiedades atómicas para evitar **[renders innecesarios](./examples/quojs-in-react/redux-quojs-profiler.md).
+- 🎯 **suscripciones atómicas** — suscríbete a propiedades atómicas para evitar **[renders innecesarios](./examples/v0/quojs-in-react/redux-quojs-profiler.es.md).
 - 🧭 **TypeScript de primera** — *typings* ergonómicos y APIs predecibles.
 - ⚡ **Middleware & effects integrados** — asíncronos por defecto; sin *boilerplate* de thunk/saga.
 - 🧩 **Reducers dinámicos** — agrega/quita *reducers* en tiempo de ejecución.
@@ -42,7 +42,7 @@ Para ayudarte a decidir si Quo.js es la mejor opción, hemos preparado comparaci
 - **Async & effects** (cómo se expresan *workflows* y efectos secundarios)  
 - **Integración con React** (selectores, Suspense, soporte para concurrent mode)
 
-👉 Revisa las comparaciones [aquí](https://quojs.dev).
+👉 Revisa las comparaciones [aquí](./examples/v0/quojs-in-react/redux-quojs-profiler.es.md).
 
 ## Inicio rápido (Monorepo)
 

@@ -1,5 +1,6 @@
 {
   "$schema": "https://typedoc.org/schema.json",
+  "name": "@quojs/core",
   "entryPoints": ["src/types.ts", "src/eventBus/*.ts", "src/store/*.ts", "src/utils/*.ts"],
   "plugin": ["typedoc-plugin-markdown"],
   "readme": "none",
@@ -7,10 +8,4 @@
   "excludePrivate": true,
   "excludeProtected": false,
   "out": "docs",
-  "externalSymbolLinkMappings": {
-    "@quojs/core": {
-      "EventBus": "#",
-      "LooseEventBus": "#"
-    }
-  }
 }

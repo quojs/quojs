@@ -8,7 +8,7 @@ original Redux pattern while introducing **channels + events**, **native async m
 effects**, **granular subscriptions**, and **React hooks ready for Suspense and Concurrent
 Mode**.
 
-> [Spanish version](./README.es.md)
+> [Version en español](./README.es.md)
 
 ## Packages
 
@@ -23,7 +23,7 @@ Mode**.
 - 🗪 **Channel + Event model** — actions are `{ channel, event, payload }`; reducers subscribe at
   exactly the granularity you need.
 - 🎯 **Fine‑grained subscriptions** — subscribe to atomic props to avoid
-  \*\*[unnecessary renders](./examples/quojs-in-react/redux-quojs-profiler.md).
+  \*\*[unnecessary renders](./examples/v0/quojs-in-react/redux-quojs-profiler.md).
 - 🧭 **TypeScript‑first** — ergonomic typings and predictable APIs.
 - ⚡ **Built‑in middleware & effects** — async by default; no thunk/saga boilerplate.
 - 🧩 **Dynamic reducers** — add/remove reducers at runtime.
@@ -49,7 +49,7 @@ popular libraries. Each document explores:
 - **Async & effects** (how workflows and side-effects are expressed)
 - **React integration** (selectors, Suspense, concurrent mode readiness)
 
-👉 Check out the comparisons [here](https://quojs.dev)
+👉 Check out the comparisons [here](./examples/v0/quojs-in-react/redux-quojs-profiler.md)
 
 ## Quick Start (Monorepo)
 
