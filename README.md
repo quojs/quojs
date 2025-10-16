@@ -8,7 +8,7 @@ original Redux pattern while introducing **channels + events**, **native async m
 effects**, **granular subscriptions**, and **React hooks ready for Suspense and Concurrent
 Mode**.
 
-> [Version en español](./README.es.md)
+> [Version en Español](./README.es.md)
 
 ## Packages
 
@@ -23,7 +23,7 @@ Mode**.
 - 🗪 **Channel + Event model** — actions are `{ channel, event, payload }`; reducers subscribe at
   exactly the granularity you need.
 - 🎯 **Fine‑grained subscriptions** — subscribe to atomic props to avoid
-  \*\*[unnecessary renders](./examples/v0/quojs-in-react/redux-quojs-profiler.md).
+  [**unnecessary renders**](./examples/v0/quojs-in-react/redux-quojs-profiler.md).
 - 🧭 **TypeScript‑first** — ergonomic typings and predictable APIs.
 - ⚡ **Built‑in middleware & effects** — async by default; no thunk/saga boilerplate.
 - 🧩 **Dynamic reducers** — add/remove reducers at runtime.
@@ -75,13 +75,13 @@ See the **Developer Guide** for SDLC, caching, and releases:
 
 ### Core
 
-- [Developer Docs](https://docs.quojs.dev/en/v0/core): quick-start guide, tutorial, recipes, etc.
 - [TypeDoc](./packages/core/docs/en/README.md): a more technical documentation extracted using TypeDoc.
+- [Developer Docs (WIP)](https://www.quojs.dev): quick-start guide, tutorial, recipes, etc.
 
 ### React bindings
 
-- [Developer Docs](https://docs.quojs.dev/en/v0/react): quick-start guide, tutorial, recipes, etc.
 - [TypeDoc](./packages/react/docs/en/README.md): a more technical documentation extracted using TypeDoc.
+- [Developer Docs (WIP)](https://www.quojs.dev): quick-start guide, tutorial, recipes, etc.
 
 ## Contributing
 

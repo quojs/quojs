@@ -5,13 +5,15 @@
   "description": "Repo-level tooling (eslint, commitlint, etc.)",
   "license": "MPL-2.0",
   "bin": {
-    "repo-eslint": "bin/repo-eslint.cjs"
+    "repo-eslint": "bin/repo-eslint.cjs",
+    "typedoc-locales": "bin/typedoc-es"
   },
   "scripts": {
     "commitlint": "commitlint",
     "test": "exit 0",
     "build": "exit 0",
-    "lint": "exit 0"
+    "lint": "exit 0",
+    "docs": "exit 0"
   },
   "dependencies": {
     "@commitlint/cli": "^19.5.0",

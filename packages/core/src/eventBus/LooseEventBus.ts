@@ -1,4 +1,8 @@
 /**
+ * @mergeModuleWith @quojs/core
+ */
+
+/**
  * Flexible, synchronous pub/sub bus that supports **exact** and **pattern** event subscriptions.
  *
  * @typeParam C - Channel name type (defaults to `string`).
