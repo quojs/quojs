@@ -17,6 +17,14 @@
       "allowWarningsInSuccessfulBuild": false
     },
     {
+      "commandKind": "bulk",
+      "name": "docs",
+      "summary": "Compile TypeDoc annotations into docs for all packages that define a docs script.",
+      "enableParallelism": true,
+      "ignoreDependencyOrder": true,
+      "allowWarningsInSuccessfulBuild": false
+    },
+    {
       "commandKind": "global",
       "name": "publish-local",
       "summary": "Publish all @quojs/* packages to local Verdaccio (no Rush / Git)",

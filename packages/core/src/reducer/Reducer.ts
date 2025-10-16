@@ -1,3 +1,7 @@
+/**
+ * @mergeModuleWith @quojs/core
+ */
+
 import type { ActionMapBase, ActionUnion, ReducerFunction } from "../types";
 
 /**

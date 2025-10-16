@@ -1,4 +1,8 @@
 /**
+ * @mergeModuleWith @quojs/core
+ */
+
+/**
  * Computes the list of **dotted leaf paths** that changed between two values.
  *
  * The algorithm performs a deep structural comparison with special handling for:

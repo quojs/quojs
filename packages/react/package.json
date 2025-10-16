@@ -9,7 +9,13 @@
     "test": "pnpm vitest --coverage --watch=false",
     "test:watch": "vitest --coverage",
     "prepublishOnly": "node ../../common/scripts/copy-license.js",
-    "docs": "typedoc --json ./.typedoc/react.json --options typedoc.react.json"
+    "docs": "rushx docs:md && rushx docs:json",
+    "docs:md": "rushx docs:md:en && rushx docs:md:es",
+    "docs:md:en": "pnpm typedoc --options ./typedoc.react.en.json",
+    "docs:md:es": "pnpm typedoc --options ./typedoc.react.es.json",
+    "docs:json": "rushx docs:json:en && rushx docs:json:es",
+    "docs:json:en": "pnpm typedoc --options ./typedoc.react.en.json",
+    "docs:json:es": "pnpm typedoc --options ./typedoc.react.es.json"
   },
   "license": "MPL-2.0",
   "author": {
@@ -90,6 +96,7 @@
     "typescript": "5.9.3",
     "typedoc": "^0.28.13",
     "typedoc-plugin-markdown": "4.9.0",
+    "typedoc-plugin-localization":"3.0.6",
     "vite-plugin-dts": "^4.5.4",
     "vite-tsconfig-paths": "^4.3.2",
     "vite": "^7.0.3",

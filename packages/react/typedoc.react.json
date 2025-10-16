@@ -1,15 +1,19 @@
 {
   "$schema": "https://typedoc.org/schema.json",
-  "entryPoints": ["src/index.ts"],
+  "name": "@quojs/react",
+  "entryPoints": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+  ],
+  "plugin": [
+    "typedoc-plugin-markdown",
+    "typedoc-plugin-localization",
+  ],
   "entryPointStrategy": "resolve",
-  "plugin": ["typedoc-plugin-markdown"],
   "readme": "none",
+  "logLevel": "Verbose",
   "categorizeByGroup": true,
   "excludePrivate": true,
   "excludeInternal": true,
   "excludeProtected": true,
-  "out": "docs",
-  "externalSymbolLinkMappings": {
-    "@quojs/core": { "StoreInstance": "#" }
-  }
 }
